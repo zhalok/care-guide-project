@@ -2,6 +2,9 @@ services:
   mongo:
     image: mongo:7
     restart: unless-stopped
+    # Bound to localhost only, so `npm run start:dev` on your machine can reach it.
+    ports:
+      - "127.0.0.1:${MONGO_PORT:-27017}:27017"
     volumes:
       - mongo-data:/data/db
     healthcheck:
