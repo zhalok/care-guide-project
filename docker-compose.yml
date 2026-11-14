@@ -14,13 +14,16 @@ services:
       retries: 10
       start_period: 10s
 
-  # Trace backend + UI. Traces are kept in memory, so they are lost on restart.
-  jaeger:
-    image: jaegertracing/jaeger:2.23.0
+  # Trace store (Grafana reads it through the Tempo datasource). Receives OTLP
+  # from the app; traces are searchable in Grafana: Explore > Tempo.
+  tempo:
+    image: grafana/tempo:3.0.0
     restart: unless-stopped
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./observability/tempo/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo-data:/var/tempo
     ports:
-      # UI: http://localhost:16686
-      - "127.0.0.1:${JAEGER_UI_PORT:-16686}:16686"
       # OTLP/HTTP, so `npm run start:dev` on your machine can export too.
       - "127.0.0.1:${OTLP_PORT:-4318}:4318"
 
@@ -34,12 +37,14 @@ services:
     ports:
       - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
 
-  # Dashboards: http://localhost:3001 (the "API latency" dashboard is provisioned).
+  # Dashboards: http://localhost:3001 (the "API latency" dashboard is provisioned;
+  # traces: Explore > Tempo, or the trace tables on that dashboard).
   grafana:
     image: grafana/grafana:13.3.1
     restart: unless-stopped
     depends_on:
       - prometheus
+      - tempo
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       # Local dev convenience: anyone reaching localhost:3001 can view dashboards.
@@ -59,7 +64,7 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-      jaeger:
+      tempo:
         condition: service_started
     ports:
       - "${APP_PORT:-3000}:3000"
@@ -68,8 +73,10 @@ services:
       MONGODB_URI: mongodb://mongo:27017/care-guide
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set (see .env.example)}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      # Used by the seed script (docker compose run --rm app node dist/seed/seed.js).
+      BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-10}
       OTEL_SERVICE_NAME: care-guide-api
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
       # /metrics must be reachable from the prometheus container. The port is not
       # published to the host, so only the compose network can see it.
       OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
@@ -78,3 +85,4 @@ volumes:
   mongo-data:
   prometheus-data:
   grafana-data:
+  tempo-data:

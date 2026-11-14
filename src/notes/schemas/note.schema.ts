@@ -16,7 +16,6 @@ export class Note {
     type: MongooseSchema.Types.ObjectId,
     ref: 'User',
     required: true,
-    index: true,
   })
   createdBy: Types.ObjectId;
 
@@ -26,3 +25,9 @@ export class Note {
 }
 
 export const NoteSchema = SchemaFactory.createForClass(Note);
+
+// Serves "a user's notes, newest first, paged by _id cursor" straight from the
+// index (equality on createdBy, then _id in descending order), with no
+// in-memory sort. It also covers plain createdBy lookups, so a separate
+// single-field index on createdBy would be redundant.
+NoteSchema.index({ createdBy: 1, _id: -1 });
