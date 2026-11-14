@@ -1,16 +1,7 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
-import { CreateNoteDto } from './dto/create-note.dto';
-import { UpdateNoteDto } from './dto/update-note.dto';
-import { Note } from './entities/note.entity';
+import { Controller, Get, Query } from '@nestjs/common';
+import type { AuthenticatedUser } from '../auth/authenticated-user';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { ListNotesQueryDto } from './dto/list-notes-query.dto';
 import { NotesService } from './notes.service';
 
 @Controller('notes')
@@ -18,28 +9,21 @@ export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
   @Get()
-  findAll(): Note[] {
-    return this.notesService.findAll();
+  findAllByUser(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: ListNotesQueryDto,
+  ) {
+    const { cursor, limit } = query;
+    return this.notesService.findAllByUser({
+      userId: user.id,
+      cursor,
+      limit,
+    });
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string): Note {
-    return this.notesService.findOne(id);
-  }
-
-  @Post()
-  create(@Body() dto: CreateNoteDto): Note {
-    return this.notesService.create(dto);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateNoteDto): Note {
-    return this.notesService.update(id, dto);
-  }
-
-  @Delete(':id')
-  @HttpCode(204)
-  remove(@Param('id') id: string): void {
-    this.notesService.remove(id);
+  @Get('all')
+  findAll(@Query() query: ListNotesQueryDto) {
+    const { cursor, limit } = query;
+    return this.notesService.findAll({ cursor, limit });
   }
 }

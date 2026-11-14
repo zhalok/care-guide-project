@@ -1,36 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateNoteDto } from './dto/create-note.dto';
-import { UpdateNoteDto } from './dto/update-note.dto';
-import { Note } from './entities/note.entity';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { isValidObjectId } from 'mongoose';
 import { NotesRepository } from './notes.repository';
+
+const DEFAULT_LIMIT = 20;
+const MAX_LIMIT = 100;
 
 @Injectable()
 export class NotesService {
   constructor(private readonly notesRepository: NotesRepository) {}
 
-  findAll(): Note[] {
-    return this.notesRepository.findAll();
+  async findAllByUser({
+    userId,
+    cursor,
+    limit,
+  }: {
+    userId: string;
+    cursor?: string;
+    limit?: string;
+  }) {
+    const page = this.parsePageParams({ cursor, limit });
+    return this.notesRepository.findPageByUser(userId, page.limit, page.cursor);
   }
 
-  findOne(id: string): Note {
-    const note = this.notesRepository.findById(id);
-    if (!note) throw new NotFoundException(`Note ${id} not found`);
-    return note;
+  async findAll({ cursor, limit }: { cursor?: string; limit?: string }) {
+    const page = this.parsePageParams({ cursor, limit });
+    return await this.notesRepository.findPage(page.limit, page.cursor);
   }
 
-  create(dto: CreateNoteDto): Note {
-    return this.notesRepository.create(dto);
-  }
-
-  update(id: string, dto: UpdateNoteDto): Note {
-    const note = this.notesRepository.update(id, dto);
-    if (!note) throw new NotFoundException(`Note ${id} not found`);
-    return note;
-  }
-
-  remove(id: string): void {
-    if (!this.notesRepository.delete(id)) {
-      throw new NotFoundException(`Note ${id} not found`);
+  private parsePageParams({
+    cursor,
+    limit: rawLimit,
+  }: {
+    cursor?: string;
+    limit?: string;
+  }) {
+    const limit = rawLimit === undefined ? DEFAULT_LIMIT : Number(rawLimit);
+    if (!Number.isInteger(limit) || limit < 1 || limit > MAX_LIMIT) {
+      throw new BadRequestException(
+        `limit must be an integer between 1 and ${MAX_LIMIT}`,
+      );
     }
+    if (cursor !== undefined && !isValidObjectId(cursor)) {
+      throw new BadRequestException('Invalid cursor');
+    }
+    return { limit, cursor };
   }
 }
