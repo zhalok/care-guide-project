@@ -1,6 +1,7 @@
 import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { UserRole } from '../users/schemas/user.schema';
 import { Test } from '@nestjs/testing';
+import { RBAC_ACTION_KEY } from '../rbac/rbac.constants';
 import { NotesController } from './notes.controller';
 import { NotesService } from './notes.service';
 
@@ -82,6 +83,19 @@ describe('NotesController', () => {
         limit: '5',
       });
       expect(result).toBe(page);
+    });
+  });
+
+  describe('RBAC metadata', () => {
+    it.each([
+      ['findAllByUser', 'get-own-notes'],
+      ['findAll', 'get-all-notes'],
+    ] as const)('%s requires the %s action', (method, action) => {
+      const handler = Object.getOwnPropertyDescriptor(
+        NotesController.prototype,
+        method,
+      )?.value as object;
+      expect(Reflect.getMetadata(RBAC_ACTION_KEY, handler)).toBe(action);
     });
   });
 });
