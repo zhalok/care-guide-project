@@ -1,0 +1,29 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/care-guide
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set (see .env.example)}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+
+volumes:
+  mongo-data:
