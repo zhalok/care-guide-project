@@ -3,3 +3,5 @@ node_modules
 dist
 # stress test reports
 loadtest/results/
+test-results/
+playwright-report/
