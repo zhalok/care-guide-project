@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { ListNotesQueryDto } from './dto/list-notes-query.dto';
+import { PageQueryDto } from '../common/page-query.dto';
 import { NotesService } from './notes.service';
 
 @Controller('notes')
@@ -11,7 +11,7 @@ export class NotesController {
   @Get()
   findAllByUser(
     @CurrentUser() user: AuthenticatedUser,
-    @Query() query: ListNotesQueryDto,
+    @Query() query: PageQueryDto,
   ) {
     const { cursor, limit } = query;
     return this.notesService.findAllByUser({
@@ -22,7 +22,7 @@ export class NotesController {
   }
 
   @Get('all')
-  findAll(@Query() query: ListNotesQueryDto) {
+  findAll(@Query() query: PageQueryDto) {
     const { cursor, limit } = query;
     return this.notesService.findAll({ cursor, limit });
   }
