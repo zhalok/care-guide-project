@@ -456,7 +456,7 @@
       "id": 8,
       "type": "table",
       "title": "Recent requests (traces)",
-      "description": "Latest request traces. Click a trace ID to open the controller > service > repository waterfall.",
+      "description": "Latest request traces. Click a trace ID to open its span waterfall.",
       "datasource": {
         "type": "tempo",
         "uid": "tempo"
@@ -482,7 +482,25 @@
       ],
       "fieldConfig": {
         "defaults": {},
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "traceID"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open trace waterfall",
+                    "url": "/d/care-guide-api-traces?var-traceId=${__value.raw}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "showHeader": true,
@@ -493,7 +511,7 @@
       "id": 9,
       "type": "table",
       "title": "Slow requests (> 100 ms)",
-      "description": "Request traces slower than 100 ms, to jump from a latency spike to the requests behind it.",
+      "description": "Request traces slower than 100 ms. Click a trace ID to open its span waterfall.",
       "datasource": {
         "type": "tempo",
         "uid": "tempo"
@@ -519,12 +537,39 @@
       ],
       "fieldConfig": {
         "defaults": {},
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "traceID"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Open trace waterfall",
+                    "url": "/d/care-guide-api-traces?var-traceId=${__value.raw}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "showHeader": true,
         "cellHeight": "sm"
       }
+    }
+  ],
+  "links": [
+    {
+      "title": "Traces",
+      "type": "link",
+      "icon": "external link",
+      "url": "/d/care-guide-api-traces",
+      "targetBlank": false
     }
   ]
 }
