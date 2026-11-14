@@ -23,6 +23,10 @@ export class User {
   })
   email: string;
 
+  /** bcrypt hash. Never selected by default; opt in with `+password`. */
+  @Prop({ required: true, select: false })
+  password: string;
+
   @Prop({ type: String, enum: UserRole, default: UserRole.User })
   role: UserRole;
 

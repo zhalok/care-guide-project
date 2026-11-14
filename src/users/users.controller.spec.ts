@@ -1,6 +1,15 @@
+import type { AuthenticatedUser } from '../auth/authenticated-user';
+import { UserRole } from './schemas/user.schema';
 import { Test } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+
+const authUser: AuthenticatedUser = {
+  id: 'user-1',
+  name: 'Ann',
+  email: 'ann@example.com',
+  role: UserRole.User,
+};
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -36,7 +45,7 @@ describe('UsersController', () => {
     const user = { name: 'A' };
     service.findById.mockResolvedValue(user);
 
-    const result = await controller.findMe({ id: 'user-1' });
+    const result = await controller.findMe(authUser);
 
     expect(service.findById).toHaveBeenCalledWith({ id: 'user-1' });
     expect(result).toBe(user);

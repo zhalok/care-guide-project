@@ -4,7 +4,10 @@ import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 
 /** A user as returned by `.lean()` queries (plain object, includes `_id`). */
-export type UserRecord = User & { _id: Types.ObjectId };
+export type UserRecord = Omit<User, 'password'> & { _id: Types.ObjectId };
+
+/** A user including the stored password hash; only used for authentication. */
+export type UserCredentials = UserRecord & { password: string };
 
 export interface UsersPage {
   items: UserRecord[];
@@ -20,6 +23,14 @@ export class UsersRepository {
 
   findById(id: string): Promise<UserRecord | null> {
     return this.userModel.findById(id).lean<UserRecord>().exec();
+  }
+
+  findByEmailWithPassword(email: string): Promise<UserCredentials | null> {
+    return this.userModel
+      .findOne({ email })
+      .select('+password')
+      .lean<UserCredentials>()
+      .exec();
   }
 
   /**

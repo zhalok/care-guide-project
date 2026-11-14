@@ -1,6 +1,15 @@
+import type { AuthenticatedUser } from '../auth/authenticated-user';
+import { UserRole } from '../users/schemas/user.schema';
 import { Test } from '@nestjs/testing';
 import { NotesController } from './notes.controller';
 import { NotesService } from './notes.service';
+
+const authUser: AuthenticatedUser = {
+  id: 'user-1',
+  name: 'Ann',
+  email: 'ann@example.com',
+  role: UserRole.User,
+};
 
 describe('NotesController', () => {
   let controller: NotesController;
@@ -24,10 +33,10 @@ describe('NotesController', () => {
       const page = { items: [], nextCursor: null };
       service.findAllByUser.mockResolvedValue(page);
 
-      const result = await controller.findAllByUser(
-        { id: 'user-1' },
-        { cursor: 'abc', limit: '5' },
-      );
+      const result = await controller.findAllByUser(authUser, {
+        cursor: 'abc',
+        limit: '5',
+      });
 
       expect(service.findAllByUser).toHaveBeenCalledWith({
         userId: 'user-1',
@@ -38,7 +47,7 @@ describe('NotesController', () => {
     });
 
     it('passes undefined cursor and limit when not provided', async () => {
-      await controller.findAllByUser({ id: 'user-1' }, {});
+      await controller.findAllByUser(authUser, {});
 
       expect(service.findAllByUser).toHaveBeenCalledWith({
         userId: 'user-1',
@@ -48,7 +57,7 @@ describe('NotesController', () => {
     });
 
     it('ignores unrelated query properties', async () => {
-      await controller.findAllByUser({ id: 'user-1' }, {
+      await controller.findAllByUser(authUser, {
         cursor: 'abc',
         userId: 'someone-else',
       } as never);
