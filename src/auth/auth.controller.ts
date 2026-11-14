@@ -9,9 +9,11 @@ import {
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { LoginDto } from './dto/login.dto';
+import { Traced } from '../tracing/traced.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
+@Traced('controller')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, QueryFilter, Types } from 'mongoose';
 import { Note as NoteSchemaClass, NoteDocument } from './schemas/note.schema';
+import { Traced } from '../tracing/traced.decorator';
 
 /** A note as returned by `.lean()` queries (plain object, includes `_id`). */
 export type NoteRecord = NoteSchemaClass & { _id: Types.ObjectId };
@@ -13,6 +14,7 @@ export interface NotesPage {
 }
 
 @Injectable()
+@Traced('repository')
 export class NotesRepository {
   constructor(
     @InjectModel(NoteSchemaClass.name)

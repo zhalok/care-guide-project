@@ -14,11 +14,13 @@ import { PageQueryDto } from '../common/page-query.dto';
 import { Rbac } from '../rbac/rbac.decorator';
 import { NotesPageDto } from './dto/note-response.dto';
 import { NotesService } from './notes.service';
+import { Traced } from '../tracing/traced.decorator';
 
 @ApiTags('notes')
 @ApiBearerAuth()
 @ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token.' })
 @Controller('notes')
+@Traced('controller')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 

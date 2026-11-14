@@ -15,11 +15,13 @@ import { PageQueryDto } from '../common/page-query.dto';
 import { Rbac } from '../rbac/rbac.decorator';
 import { UserResponseDto, UsersPageDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
+import { Traced } from '../tracing/traced.decorator';
 
 @ApiTags('users')
 @ApiBearerAuth()
 @ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token.' })
 @Controller('users')
+@Traced('controller')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

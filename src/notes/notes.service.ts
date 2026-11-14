@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { parsePageParams } from '../common/pagination';
 import { NotesRepository } from './notes.repository';
+import { Traced } from '../tracing/traced.decorator';
 
 @Injectable()
+@Traced('service')
 export class NotesService {
   constructor(private readonly notesRepository: NotesRepository) {}
 

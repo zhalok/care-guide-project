@@ -7,12 +7,14 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UsersRepository } from '../users/users.repository';
 import type { JwtPayload } from './authenticated-user';
+import { Traced } from '../tracing/traced.decorator';
 
 // Compared against when the email is unknown so response time doesn't reveal
 // whether an account exists.
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', 10);
 
 @Injectable()
+@Traced('service')
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,

@@ -14,12 +14,24 @@ services:
       retries: 10
       start_period: 10s
 
+  # Trace backend + UI. Traces are kept in memory, so they are lost on restart.
+  jaeger:
+    image: jaegertracing/jaeger:2.23.0
+    restart: unless-stopped
+    ports:
+      # UI: http://localhost:16686
+      - "127.0.0.1:${JAEGER_UI_PORT:-16686}:16686"
+      # OTLP/HTTP, so `npm run start:dev` on your machine can export too.
+      - "127.0.0.1:${OTLP_PORT:-4318}:4318"
+
   app:
     build: .
     restart: unless-stopped
     depends_on:
       mongo:
         condition: service_healthy
+      jaeger:
+        condition: service_started
     ports:
       - "${APP_PORT:-3000}:3000"
     environment:
@@ -27,6 +39,8 @@ services:
       MONGODB_URI: mongodb://mongo:27017/care-guide
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set (see .env.example)}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      OTEL_SERVICE_NAME: care-guide-api
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
 
 volumes:
   mongo-data:

@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { parsePageParams } from '../common/pagination';
 import { UsersRepository } from './users.repository';
+import { Traced } from '../tracing/traced.decorator';
 
 @Injectable()
+@Traced('service')
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 

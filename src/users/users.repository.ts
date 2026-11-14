@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
+import { Traced } from '../tracing/traced.decorator';
 
 /** A user as returned by `.lean()` queries (plain object, includes `_id`). */
 export type UserRecord = Omit<User, 'password'> & { _id: Types.ObjectId };
@@ -16,6 +17,7 @@ export interface UsersPage {
 }
 
 @Injectable()
+@Traced('repository')
 export class UsersRepository {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
