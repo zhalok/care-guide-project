@@ -15,5 +15,9 @@ export interface AuthenticatedRequest extends Request {
 
 /** Claims stored in the issued JWT. */
 export interface JwtPayload {
+  /** User id. */
   sub: string;
+  email: string;
+  /** The user's role when the token was issued. */
+  role: UserRole;
 }

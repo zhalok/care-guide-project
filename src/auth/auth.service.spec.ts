@@ -36,7 +36,7 @@ describe('AuthService', () => {
     service = moduleRef.get(AuthService);
   });
 
-  it('issues a JWT whose subject is the user id when credentials match', async () => {
+  it('issues a JWT carrying the user id, email and role when credentials match', async () => {
     usersRepository.findByEmailWithPassword.mockResolvedValue(user);
 
     const result = await service.login({
@@ -47,7 +47,39 @@ describe('AuthService', () => {
     expect(result).toEqual({ accessToken: 'signed.jwt.token' });
     expect(jwtService.signAsync).toHaveBeenCalledWith({
       sub: String(user._id),
+      email: 'ann@example.com',
+      role: UserRole.User,
     });
+  });
+
+  it("embeds the user's actual role, e.g. admin", async () => {
+    usersRepository.findByEmailWithPassword.mockResolvedValue({
+      ...user,
+      role: UserRole.Admin,
+    });
+
+    await service.login({
+      email: 'ann@example.com',
+      password: 'correct-password',
+    });
+
+    expect(jwtService.signAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ role: UserRole.Admin }),
+    );
+  });
+
+  it('never puts the password hash or other fields in the token', async () => {
+    usersRepository.findByEmailWithPassword.mockResolvedValue(user);
+
+    await service.login({
+      email: 'ann@example.com',
+      password: 'correct-password',
+    });
+
+    const [payload] = jwtService.signAsync.mock.calls[0] as [
+      Record<string, unknown>,
+    ];
+    expect(Object.keys(payload).sort()).toEqual(['email', 'role', 'sub']);
   });
 
   it('normalizes the email (trim + lowercase) before lookup', async () => {
