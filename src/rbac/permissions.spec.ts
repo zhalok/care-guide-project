@@ -7,6 +7,10 @@ describe('permissions', () => {
     [UserRole.User, 'get-all-notes', false],
     [UserRole.Admin, 'get-own-notes', true],
     [UserRole.Admin, 'get-all-notes', true],
+    [UserRole.User, 'get-me', true],
+    [UserRole.User, 'get-all-users', false],
+    [UserRole.Admin, 'get-me', true],
+    [UserRole.Admin, 'get-all-users', true],
   ] as const)('role %s / action %s -> %s', (role, action, expected) => {
     expect(isActionAllowed(role, action)).toBe(expected);
   });

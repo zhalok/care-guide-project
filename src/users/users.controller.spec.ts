@@ -1,3 +1,4 @@
+import { RBAC_ACTION_KEY } from '../rbac/rbac.constants';
 import type { AuthenticatedUser } from '../auth/authenticated-user';
 import { UserRole } from './schemas/user.schema';
 import { Test } from '@nestjs/testing';
@@ -49,5 +50,18 @@ describe('UsersController', () => {
 
     expect(service.findById).toHaveBeenCalledWith({ id: 'user-1' });
     expect(result).toBe(user);
+  });
+
+  describe('RBAC metadata', () => {
+    it.each([
+      ['findAll', 'get-all-users'],
+      ['findMe', 'get-me'],
+    ] as const)('%s requires the %s action', (method, action) => {
+      const handler = Object.getOwnPropertyDescriptor(
+        UsersController.prototype,
+        method,
+      )?.value as object;
+      expect(Reflect.getMetadata(RBAC_ACTION_KEY, handler)).toBe(action);
+    });
   });
 });
