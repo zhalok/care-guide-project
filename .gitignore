@@ -1,3 +1,5 @@
 node_modules
 .env
 dist
+# stress test reports
+loadtest/results/
