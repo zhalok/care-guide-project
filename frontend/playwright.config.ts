@@ -20,5 +20,6 @@ export default defineConfig({
     channel: process.env.PW_CHANNEL || 'chromium',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    headless: false
   },
 });
