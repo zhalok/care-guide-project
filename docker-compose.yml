@@ -70,18 +70,18 @@ services:
       - "${APP_PORT:-3000}:3000"
     environment:
       PORT: 3000
-      MONGODB_URI: mongodb://mongo:27017/care-guide
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/care-guide}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set (see .env.example)}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
       # Used by the seed script (docker compose run --rm app node dist/seed/seed.js).
       BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-10}
       # nginx (the web service) is one proxy hop in front of the app.
-      TRUST_PROXY: "1"
-      OTEL_SERVICE_NAME: care-guide-api
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-care-guide-api}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://tempo:4318}
       # /metrics must be reachable from the prometheus container. The port is not
       # published to the host, so only the compose network can see it.
-      OTEL_EXPORTER_PROMETHEUS_HOST: 0.0.0.0
+      OTEL_EXPORTER_PROMETHEUS_HOST: ${OTEL_EXPORTER_PROMETHEUS_HOST:-0.0.0.0}
 
   # React frontend: nginx serves the built files and forwards /api/* to the app.
   # Open http://localhost:8080

@@ -29,7 +29,9 @@ more, and logs out. It needs the stack running and the demo data seeded:
     npm run e2e                                        # from frontend/
 
 Use your installed Chrome instead with `PW_CHANNEL=chrome npm run e2e`.
-Screenshots of each step land in `test-results/`.
+It runs in slow motion in a visible browser window (`SLOWMO=0` for full speed);
+see the [root README](../README.md). A failure leaves a screenshot and trace in
+`test-results/`.
 
 ## Scripts
 
