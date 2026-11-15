@@ -77,7 +77,7 @@ export async function clickLoadMore(page: Page) {
 
 /**
  * Playwright moves a synthetic mouse, so no real cursor shows in a headed run.
- * Draw a red dot that follows the mouse events so clicks are visible. The init
+ * Draw a red dot that follows the mouse events and pulses on click. The init
  * script re-runs on every page load.
  */
 export async function showCursor(page: Page) {
@@ -102,6 +102,39 @@ export async function showCursor(page: Page) {
             void dot.offsetWidth;
             dot.style.transition = `left ${glideMs}ms ease-in-out, top ${glideMs}ms ease-in-out`;
           }
+        },
+        true,
+      );
+      // Click effect: the dot squeezes and a ring ripples out from the click point.
+      document.addEventListener(
+        'mousedown',
+        (e) => {
+          dot.animate(
+            [
+              { transform: 'scale(1)' },
+              { transform: 'scale(0.6)' },
+              { transform: 'scale(1)' },
+            ],
+            { duration: 300, easing: 'ease-out' },
+          );
+          const ring = document.createElement('div');
+          ring.style.cssText =
+            'position:fixed;z-index:2147483646;pointer-events:none;width:20px;' +
+            'height:20px;margin:-10px 0 0 -10px;border-radius:50%;' +
+            `left:${e.clientX}px;top:${e.clientY}px;border:3px solid red;`;
+          document.body.appendChild(ring);
+          ring
+            .animate(
+              [
+                { transform: 'scale(1)', opacity: 0.9 },
+                { transform: 'scale(3.5)', opacity: 0 },
+              ],
+              { duration: 600, easing: 'ease-out' },
+            )
+            .finished.then(
+              () => ring.remove(),
+              () => ring.remove(),
+            );
         },
         true,
       );
