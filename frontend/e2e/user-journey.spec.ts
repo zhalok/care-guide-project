@@ -2,18 +2,10 @@ import { test } from '@playwright/test';
 import { showCursor } from './helpers';
 import { buildSteps } from './steps';
 
-test('admin (alice) and regular user (bob) journeys', async ({
-  page,
-}, testInfo) => {
-  const shot = (name: string) =>
-    page.screenshot({
-      path: testInfo.outputPath(`${name}.png`),
-      fullPage: true,
-    });
-
+test('admin (alice) and regular user (bob) journeys', async ({ page }) => {
   await showCursor(page);
 
-  for (const step of buildSteps(page, shot)) {
+  for (const step of buildSteps(page)) {
     await test.step(step.name, step.fn);
   }
 });

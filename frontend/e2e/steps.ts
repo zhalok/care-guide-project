@@ -15,17 +15,13 @@ export type Step = {
   fn: () => Promise<void>;
 };
 
-/** The journey, in order. `shot` saves a named full-page screenshot. */
-export function buildSteps(
-  page: Page,
-  shot: (name: string) => Promise<unknown>,
-): Step[] {
+/** The journey, in order. */
+export function buildSteps(page: Page): Step[] {
   return [
     {
       name: 'alice logs in as admin',
       fn: async () => {
         await page.goto('/');
-        await shot('01-login');
         await signIn(page, 'alice@example.com', 'alice123');
 
         await expect(banner(page)).toContainText('Alice');
@@ -46,7 +42,6 @@ export function buildSteps(
       name: 'alice clicks load more',
       fn: async () => {
         await clickLoadMore(page);
-        await shot('02-alice-notes');
       },
     },
     {
@@ -66,7 +61,6 @@ export function buildSteps(
         await expect(
           cards(page).filter({ hasText: 'bob@example.com' }),
         ).toHaveCount(1);
-        await shot('03-alice-users');
       },
     },
     {
@@ -104,7 +98,6 @@ export function buildSteps(
       name: 'bob clicks load more',
       fn: async () => {
         await clickLoadMore(page);
-        await shot('04-bob-notes');
       },
     },
     {
@@ -117,7 +110,6 @@ export function buildSteps(
       name: 'bob logs out',
       fn: async () => {
         await signOut(page);
-        await shot('05-logged-out');
       },
     },
   ];

@@ -34,7 +34,29 @@ export async function scrollToLoadMore(page: Page, owner: 'Alice' | 'Bob') {
   await expect(cards(page)).toHaveCount(PAGE_SIZE);
   await expect(cards(page).first()).toContainText(`${owner}'s note #`);
 
-  await loadMoreButton(page).scrollIntoViewIfNeeded();
+  await smoothScrollTo(loadMoreButton(page));
+}
+
+/** Smooth-scroll an element to the middle of the viewport and wait until the scroll stops. */
+async function smoothScrollTo(locator: Locator) {
+  await locator.evaluate((el) =>
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+  );
+  // Smooth scrolling has no "done" event: wait until scrollY holds still.
+  await locator.page().evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        let last = window.scrollY;
+        let stillFrames = 0;
+        const tick = () => {
+          stillFrames = window.scrollY === last ? stillFrames + 1 : 0;
+          last = window.scrollY;
+          if (stillFrames >= 10) resolve();
+          else requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }),
+  );
 }
 
 /** Smooth-scroll back to the top of the page. */
