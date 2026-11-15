@@ -1,5 +1,6 @@
 #!/bin/sh
-# One-shot: copy env, start containers, seed, run the Playwright e2e test.
+# One-shot: copy env, start containers, seed, run the Playwright e2e test,
+# then stop the containers.
 # Usage: ./scripts/e2e-all.sh   (SLOWMO, PW_CHANNEL, BASE_URL pass through)
 set -eu
 
@@ -20,7 +21,8 @@ if ! grep -Eq '^JWT_SECRET=.+' .env; then
   echo "Generated JWT_SECRET in .env"
 fi
 
-# 2. Containers
+# 2. Containers (stopped again when the script ends, pass or fail)
+trap 'echo "Stopping containers..."; docker compose stop' EXIT
 docker compose up --build -d --wait
 
 # 3. Seed

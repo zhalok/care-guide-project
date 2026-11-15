@@ -14,8 +14,9 @@ Requires Docker with Compose v2 and Node.js. From the project root:
 This single script creates `.env` (if missing), builds and starts the
 containers, seeds the demo data, then opens a browser and runs the e2e
 walkthrough. The first run takes a few minutes (image build, seeding 20,000
-notes, Chromium download). Afterwards the app stays up at http://localhost:8080
-(login: `alice@example.com` / `alice123`).
+notes, Chromium download). When the test finishes (pass or fail) the containers
+are stopped; seeded data is kept, so run `docker compose up -d` to bring the app
+back at http://localhost:8080 (login: `alice@example.com` / `alice123`).
 
 The sections below explain each step if you want to run them separately.
 
