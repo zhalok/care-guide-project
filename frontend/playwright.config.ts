@@ -7,10 +7,15 @@ import { defineConfig } from '@playwright/test';
 //   npm run e2e
 // To use the Chrome that is already installed instead of downloading a browser:
 //   PW_CHANNEL=chrome npm run e2e
+// Slow motion: Playwright waits this many ms after every browser action (click,
+// fill, scroll, ...) so a person can follow a headed run. SLOWMO=0 for full speed.
+const slowMo = Number(process.env.SLOWMO ?? 1000);
+
 export default defineConfig({
   testDir: './e2e',
-  timeout: 60_000,
-  expect: { timeout: 10_000 },
+  // Every action is delayed by slowMo, so allow plenty of time.
+  timeout: 5 * 60_000,
+  // expect: { timeout: 10_000 },
   workers: 1,
   reporter: [['list']],
   use: {
@@ -20,6 +25,7 @@ export default defineConfig({
     channel: process.env.PW_CHANNEL || 'chromium',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    headless: false
+    headless: false,
+    launchOptions: { slowMo },
   },
 });
