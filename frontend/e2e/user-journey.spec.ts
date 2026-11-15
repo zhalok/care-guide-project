@@ -43,6 +43,12 @@ async function scrollToLoadMore(page: Page, owner: 'Alice' | 'Bob') {
   await loadMoreButton(page).scrollIntoViewIfNeeded();
 }
 
+/** Smooth-scroll back to the top of the page. */
+async function scrollToTop(page: Page) {
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  await page.waitForFunction(() => window.scrollY === 0);
+}
+
 /** Click "Load more" to append a second page, then scroll to the bottom of it. */
 async function clickLoadMore(page: Page) {
   await glideAndClick(loadMoreButton(page));
@@ -151,6 +157,12 @@ test('admin (alice) and regular user (bob) journeys', async ({
       },
     },
     {
+      name: 'alice scrolls back to the top',
+      fn: async () => {
+        await scrollToTop(page);
+      },
+    },
+    {
       name: 'alice opens the users page',
       fn: async () => {
         await glideAndClick(page.getByRole('button', { name: 'Users' }));
@@ -200,6 +212,12 @@ test('admin (alice) and regular user (bob) journeys', async ({
       fn: async () => {
         await clickLoadMore(page);
         await shot('04-bob-notes');
+      },
+    },
+    {
+      name: 'bob scrolls back to the top',
+      fn: async () => {
+        await scrollToTop(page);
       },
     },
     {
