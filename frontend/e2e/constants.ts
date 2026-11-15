@@ -5,3 +5,5 @@ export const PAGE_SIZE = 20;
 export const CURSOR_GLIDE_MS = 700;
 // Delay between typed characters.
 export const TYPING_DELAY_MS = 150;
+// Pause after each step so a person watching a headed run can follow along.
+export const STEP_PAUSE_MS = 2000;
