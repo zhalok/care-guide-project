@@ -3,6 +3,24 @@
 NestJS API with a React frontend, MongoDB, and OpenTelemetry metrics and traces,
 all run with Docker Compose.
 
+## Quick demo (one command)
+
+Requires Docker with Compose v2 and Node.js. From the project root:
+
+```sh
+./scripts/e2e-all.sh     # or: npm run e2e:all
+```
+
+This single script creates `.env` (if missing), builds and starts the
+containers, seeds the demo data, then opens a browser and runs the e2e
+walkthrough. The first run takes a few minutes (image build, seeding 20,000
+notes, Chromium download). Afterwards the app stays up at http://localhost:8080
+(login: `alice@example.com` / `alice123`).
+
+The sections below explain each step if you want to run them separately.
+
+---
+
 This guide covers how to build and run the stack, drive it with the browser
 (e2e) test, stress it, and watch the metrics and traces.
 
